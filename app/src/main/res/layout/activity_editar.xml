@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.games.Editar"
+    android:background="@drawable/fondo"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="20dp"
+        android:textSize="30dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:textColor="#efa94a"
+        android:text="EDITAR CUENTA"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:hint="Usuario"
+        android:background="@drawable/fondoblanco"
+        android:enabled="false"
+        android:layout_margin="20dp"
+        android:inputType="textEmailAddress"
+        android:layout_marginTop="50dp"
+        android:id="@+id/EditUser">
+    </EditText>
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:hint="Password"
+        android:background="@drawable/fondoblanco"
+        android:layout_margin="20dp"
+        android:inputType="textPassword"
+        android:layout_marginTop="50dp"
+        android:id="@+id/EditPass"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:hint="Nombre"
+        android:layout_marginBottom="0dp"
+        android:layout_margin="20dp"
+        android:inputType="textPersonName"
+        android:background="@drawable/fondoblanco"
+        android:layout_marginTop="50dp"
+        android:id="@+id/EditNombre"/>
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:hint="Apellido"
+        android:layout_margin="20dp"
+        android:background="@drawable/fondoblanco"
+        android:inputType="textPersonName"
+        android:layout_marginTop="50dp"
+        android:id="@+id/EditApellido"/>
+
+    <Button
+        android:id="@+id/EditActualizar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="20dp"
+        android:layout_weight="1"
+        android:background="@drawable/ficharellena"
+        android:text="Actualizar"
+        android:textColor="#ffffff"
+        android:textSize="30dp"
+        android:textStyle="bold"/>
+
+    <Button
+        android:id="@+id/Editcancelar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="20dp"
+        android:layout_weight="1"
+        android:background="@drawable/fondorojo"
+        android:text="Cancelar"
+        android:textColor="#ffffff"
+        android:textSize="30dp"
+        android:textStyle="bold"/>
+
+
+</LinearLayout>

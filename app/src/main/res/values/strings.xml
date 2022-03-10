@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">2048</string>
+
+    <string name="title_activity_main_menu">Peg Solitaire</string>
+    <string name="button_play_text">Play</string>
+
+    <string name="button_finish_text">Finish Game</string>
+    <string name="textview_score_text">32</string>
+
+
+</resources>

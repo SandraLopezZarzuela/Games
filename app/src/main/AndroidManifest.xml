@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.games">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/img"
+        android:label="Game Center"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.AppCompat.DayNight.DarkActionBar">
+        <activity
+            android:name=".RankingPeg"
+            android:exported="false" />
+        <activity android:name=".SplashGameOver"
+            android:exported="false"/>
+        <activity
+            android:name=".Ranking2048"
+            android:exported="false" />
+        <activity
+            android:name=".Editar"
+            android:exported="false" />
+        <activity
+            android:name=".Registro"
+            android:exported="false" />
+        <activity
+            android:name=".Login"
+            android:exported="false" />
+        <activity
+            android:name=".gamePeg"
+            android:exported="false" />
+        <activity
+            android:name=".game2048"
+            android:exported="false" />
+        <activity
+            android:name=".Menu"
+            android:exported="false" />
+        <activity
+            android:name=".Splash"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
