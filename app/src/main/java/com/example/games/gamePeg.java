@@ -1,14 +1,14 @@
 package com.example.games;
 
-
-
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.MediaPlayer;
+import android.nfc.Tag;
 import android.os.Bundle;
 
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -17,6 +17,7 @@ import android.widget.Chronometer;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -29,6 +30,7 @@ public class gamePeg extends AppCompatActivity {
     TextView puntuacion;
     Chronometer chronometer;
     int id;
+    private static final String TAG = "MyActivity";
     daoUsuario dao;
     Usuario u;
     private Animation inicio;
@@ -72,10 +74,13 @@ public class gamePeg extends AppCompatActivity {
         restart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Game();
+                mediaPlayer.stop();
+                Intent intent = new Intent(gamePeg.this, gamePeg.class);
+                intent.putExtra("id", id);
+                startActivity(intent);
+                finish();
             }
         });
-
         Game();
     }
 
@@ -108,136 +113,227 @@ public class gamePeg extends AppCompatActivity {
     }
 
     public void seleccionarCasilla() {
-    //recorremos toda la matriz
+        //ponemos el firstClick en true
+        //recorremos el tablero
         for (int i = 0; i < matrixImageView.length; i++) {
             for (int j = 0; j < matrixImageView[0].length; j++) {
-                int x = i;
-                int y = j;
-                //activamos el listener
-                matrixImageView[x][y].setOnClickListener(new View.OnClickListener() {
+                int finalI = i;
+                int finalJ = j;
+                //instaciamos el listener
+                matrixImageView[finalI][finalJ].setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        //comprobamos si la ficha que seleccionamos primero esta rellena
-                        if (firstClick && matrixImageView[x][y].getBackground().getConstantState().equals(
+                        //el primer click tiene que ser en ficha rellena o ficha seleccionada
+                        if (firstClick && matrixImageView[finalI][finalJ].getBackground().getConstantState().equals(
                                 getResources().getDrawable(R.drawable.ficharellena, null).getConstantState())
-                                || firstClick && matrixImageView[x][y].getBackground().getConstantState().equals(
-                                getResources().getDrawable(R.drawable.ficharellena, null).getConstantState())) {
-                            //si la condicion se cumple pasamos a comprobar si la siguiente tambien esta rellena
-                            if (matrixImageView[iV_selectedI][iV_selectedJ].getBackground().getConstantState().equals(
-                                    getResources().getDrawable(R.drawable.ficharellena, null).getConstantState())) {
-                                matrixImageView[iV_selectedI][iV_selectedJ].setBackgroundResource(R.drawable.ficharellena);
-                            }
-                            matrixImageView[x][y].setBackgroundResource(R.drawable.fichaseleccionada);
-                            iV_selectedI = x;
-                            iV_selectedJ = y;
+                                || firstClick && matrixImageView[finalI][finalJ].getBackground().getConstantState().equals(
+                                getResources().getDrawable(R.drawable.fichaseleccionada, null).getConstantState())) {
+                            matrixImageView[finalI][finalJ].setBackgroundResource(R.drawable.fichaseleccionada);
+                            iV_selectedI = finalI;
+                            iV_selectedJ = finalJ;
                             firstClick = false;
-                            //si la segunda ficha esta vacia pasamos a realizar los movimientos
-                        } else if (!firstClick && matrixImageView[x][y].getBackground().getConstantState().equals(
-                                getResources().getDrawable(R.drawable.vacia, null).getConstantState())) {
-                            Toast.makeText(gamePeg.this, "Primer ElseIF", Toast.LENGTH_SHORT).show();
-                            //matrixImageView[iV_selectedI][iV_selectedJ].setBackgroundResource(R.drawable.ficha_shape_noclicked);
-                            realizarMovimiento(x, y);
-                            //A medida que hagamos movimientos restamos una score
-                            //Hacemos la comprobacion si nuestra score actual es mejor que la anterior
-                            //Si es asi, hacemos update en bbdd e insertamos al ranking la nueva
-                            contarFichasRellenas();
-                            score--;
-                            updateScore(score);
-                            //Pasamos a comprobar si se puede seguir jugando o no
-                            if (checkGameOver()) {
-                                    AlertDialog.Builder builder = new AlertDialog.Builder(gamePeg.this);
-                                    builder.setTitle("Loose");
-                                    builder.setMessage("Has Perdido");
-                                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialogInterface, int i) {
-                                            Intent intent = new Intent(getApplicationContext(), Menu.class);
-                                            gamePeg.this.finish();
-                                        }
-                                    });
-                                    AlertDialog dialog = builder.create();
-                                    dialog.show();
-                                }
 
-                        } else if (!firstClick && matrixImageView[x][y].getBackground().getConstantState().equals(
-                                getResources().getDrawable(R.drawable.ficharellena, null).getConstantState())) {
-                            Toast.makeText(gamePeg.this, "Segundo ElseIF", Toast.LENGTH_SHORT).show();
-                            matrixImageView[iV_selectedI][iV_selectedJ].setBackgroundResource(R.drawable.ficharellena);
-                            matrixImageView[x][y].setBackgroundResource(R.drawable.fichaseleccionada);
-                            iV_selectedI = x;
-                            iV_selectedJ = y;
+                            //si el segundo click es una ficha rellena no podemos ejecutar el movimiento
+                       }else if (!firstClick && matrixImageView[finalI][finalJ].getBackground().getConstantState().equals(
+                            getResources().getDrawable(R.drawable.ficharellena, null).getConstantState())) {
+                        matrixImageView[iV_selectedI][iV_selectedJ].setBackgroundResource(R.drawable.ficharellena);
+                        matrixImageView[finalI][finalJ].setBackgroundResource(R.drawable.fichaseleccionada);
+                        iV_selectedI = finalI;
+                        iV_selectedJ = finalJ;
+                        firstClick = false;
+                        //Procedemos a comprobar si es posible hacer el movimiento
+                            // debemos saber si el segundo click la fixha esta vacia, si la anterior esta rellena y si la (doble) anterior es la seleciconada
+                            //para esto lo comprobamos en las 4 direcciones
+                            // abajo - arriba
+                        }else if (!firstClick && matrixImageView[finalI][finalJ].getBackground().getConstantState().equals(
+                                getResources().getDrawable(R.drawable.vacia, null).getConstantState())&& matrixImageView[finalI+1][finalJ].getBackground().getConstantState().equals(
+                                getResources().getDrawable(R.drawable.ficharellena, null).getConstantState())&&matrixImageView[finalI+2][finalJ].getBackground().getConstantState().equals(
+                                getResources().getDrawable(R.drawable.fichaseleccionada, null).getConstantState())){
+                            realizarMovimiento(finalJ, finalI);
+                            contarFichasRellenas();
+                      //      checkGameOver();
+
+                            //arriba - abajo
+                        } else if (!firstClick && matrixImageView[finalI][finalJ].getBackground().getConstantState().equals(
+                            getResources().getDrawable(R.drawable.vacia, null).getConstantState())&& matrixImageView[finalI-1][finalJ].getBackground().getConstantState().equals(
+                                getResources().getDrawable(R.drawable.ficharellena, null).getConstantState())&& matrixImageView[finalI-2][finalJ].getBackground().getConstantState().equals(
+                                getResources().getDrawable(R.drawable.fichaseleccionada, null).getConstantState())) {
+                            realizarMovimiento(finalJ, finalI);
+                            contarFichasRellenas();
+                       //     checkGameOver();
+                            //izq- derecha
+                        }else if (!firstClick && matrixImageView[finalI][finalJ].getBackground().getConstantState().equals(
+                            getResources().getDrawable(R.drawable.vacia, null).getConstantState())&& matrixImageView[finalI][finalJ-1].getBackground().getConstantState().equals(
+                            getResources().getDrawable(R.drawable.ficharellena, null).getConstantState())&&matrixImageView[finalI][finalJ-2].getBackground().getConstantState().equals(
+                                getResources().getDrawable(R.drawable.fichaseleccionada, null).getConstantState())){
+                        realizarMovimiento(finalJ, finalI);
+                        contarFichasRellenas();
+                    //    checkGameOver();
+                            //derecha-izq
+                        } else if (!firstClick && matrixImageView[finalI][finalJ].getBackground().getConstantState().equals(
+                            getResources().getDrawable(R.drawable.vacia, null).getConstantState())&& matrixImageView[finalI][finalJ+1].getBackground().getConstantState().equals(
+                            getResources().getDrawable(R.drawable.ficharellena, null).getConstantState())&&matrixImageView[finalI][finalJ+2].getBackground().getConstantState().equals(
+                                getResources().getDrawable(R.drawable.fichaseleccionada, null).getConstantState())) {
+                            realizarMovimiento(finalJ, finalI);
+                            contarFichasRellenas();
+                     //       checkGameOver();
+
+                       } else if (!firstClick && matrixImageView[finalI][finalJ].getBackground().getConstantState().equals(
+                                getResources().getDrawable(R.drawable.vacia, null).getConstantState())&& matrixImageView[finalI][finalJ+1].getBackground().getConstantState().equals(
+                                getResources().getDrawable(R.drawable.vacia, null).getConstantState())&&matrixImageView[finalI][finalJ+2].getBackground().getConstantState().equals(
+                                getResources().getDrawable(R.drawable.fichaseleccionada, null).getConstantState())) {
+                            Toast.makeText(getApplicationContext(),"Movimiento invalido",Toast.LENGTH_SHORT).show();
+                            iV_selectedI = finalI;
+                            iV_selectedJ = finalJ;
+                            firstClick = false;
+                        } else if (!firstClick && matrixImageView[finalI][finalJ].getBackground().getConstantState().equals(
+                                getResources().getDrawable(R.drawable.vacia, null).getConstantState())&& matrixImageView[finalI][finalJ+1].getBackground().getConstantState().equals(
+                                getResources().getDrawable(R.drawable.vacia, null).getConstantState())&&matrixImageView[finalI][finalJ+2].getBackground().getConstantState().equals(
+                                getResources().getDrawable(R.drawable.fichaseleccionada, null).getConstantState())) {
+                            Toast.makeText(getApplicationContext(),"Movimiento invalido",Toast.LENGTH_SHORT).show();
+                            iV_selectedI = finalI;
+                            iV_selectedJ = finalJ;
+                            firstClick = false;
+                        } else if (!firstClick && matrixImageView[finalI][finalJ].getBackground().getConstantState().equals(
+                                getResources().getDrawable(R.drawable.vacia, null).getConstantState())&& matrixImageView[finalI][finalJ+1].getBackground().getConstantState().equals(
+                                getResources().getDrawable(R.drawable.vacia, null).getConstantState())&&matrixImageView[finalI][finalJ+2].getBackground().getConstantState().equals(
+                                getResources().getDrawable(R.drawable.fichaseleccionada, null).getConstantState())) {
+                            Toast.makeText(getApplicationContext(),"Movimiento invalido",Toast.LENGTH_SHORT).show();
+                            iV_selectedI = finalI;
+                            iV_selectedJ = finalJ;
+                            firstClick = false;
+                        } else if (!firstClick && matrixImageView[finalI][finalJ].getBackground().getConstantState().equals(
+                                getResources().getDrawable(R.drawable.vacia, null).getConstantState())&& matrixImageView[finalI][finalJ+1].getBackground().getConstantState().equals(
+                                getResources().getDrawable(R.drawable.vacia, null).getConstantState())&&matrixImageView[finalI][finalJ+2].getBackground().getConstantState().equals(
+                                getResources().getDrawable(R.drawable.fichaseleccionada, null).getConstantState())) {
+                            Toast.makeText(getApplicationContext(),"Movimiento invalido",Toast.LENGTH_SHORT).show();
+                            iV_selectedI = finalI;
+                            iV_selectedJ = finalJ;
+                            firstClick = false;
+                        }else if (!firstClick && matrixImageView[finalI][finalJ].getBackground().getConstantState().equals(
+                                getResources().getDrawable(R.drawable.vacia, null).getConstantState())){
+                            matrixImageView[iV_selectedI][iV_selectedJ].setBackgroundResource(R.drawable.vacia);
+                            iV_selectedI = finalI;
+                            iV_selectedJ = finalJ;
+                        } else{
+                            Toast.makeText(getApplicationContext(),"Movimiento invalido",Toast.LENGTH_SHORT).show();
+                            matrixImageView[iV_selectedI][iV_selectedJ].setBackgroundResource(R.drawable.vacia);
+                            iV_selectedI = finalI;
+                            iV_selectedJ = finalJ;
                             firstClick = false;
                         }
                     }
+
                 });
             }
         }
     }
+
 
     //metodo para comprobar si la puntuacion es menor a la de nuestra bbdd y hacer el update
     public void updateScore(int score) {
         if (score < u.getScorePeg()) {
             u.setScorePeg(score);
             dao.updateScorePeg(u);
-        } else {
-            u.setScorePeg(u.getScorePeg());
-            dao.updateScorePeg(u);
         }
-
     }
 
     public void realizarMovimiento(int finalJ, int finalI) {
-
         // Abajo-Arriba
         if (iV_selectedJ == finalJ) {
             if (finalI - iV_selectedI == -2) {
-                //Primera Bola
+                //la del primer click pasa a ser vacia
                 matrixImageView[iV_selectedI][iV_selectedJ].setBackgroundResource(R.drawable.vacia);
-                // Bola Medio
+                // la de enmedio pasa a ser vacia
                 matrixImageView[iV_selectedI - 1][iV_selectedJ].setBackgroundResource(R.drawable.vacia);
-                //Ultima Bola
+                //la del segundo click pasa a ser rellena
                 matrixImageView[iV_selectedI - 2][iV_selectedJ].setBackgroundResource(R.drawable.ficharellena);
                 firstClick = true;
+                //Al realizar el movmiento restamos uno en la puntuacion
+                score--;
             }
             //Arriba - Abajo
             else if (finalI - iV_selectedI == 2) {
-                //Primera Bola
+                //la del primer click pasa a ser vacia
                 matrixImageView[iV_selectedI][iV_selectedJ].setBackgroundResource(R.drawable.vacia);
-                // Bola Medio
+                // la de enmedio pasa a ser vacia
                 matrixImageView[iV_selectedI + 1][iV_selectedJ].setBackgroundResource(R.drawable.vacia);
-                //Ultima Bola
+                //la del segundo click pasa a ser rellena
                 matrixImageView[iV_selectedI + 2][iV_selectedJ].setBackgroundResource(R.drawable.ficharellena);
                 firstClick = true;
+                //Al realizar el movmiento restamos uno en la puntuacion
+                score--;
             }
         } else if (iV_selectedI == finalI) {
             //Izquierda- Derecha
             if (finalJ - iV_selectedJ == 2) {
-                //Primera Bola
+                //la del primer click pasa a ser vacia
                 matrixImageView[iV_selectedI][iV_selectedJ].setBackgroundResource(R.drawable.vacia);
-                // Bola Medio
+                // la de enmedio pasa a ser vacia
                 matrixImageView[iV_selectedI][iV_selectedJ + 1].setBackgroundResource(R.drawable.vacia);
-                //Ultima Bola
+                //la del segundo click pasa a ser rellena
                 matrixImageView[iV_selectedI][iV_selectedJ + 2].setBackgroundResource(R.drawable.ficharellena);
                 firstClick = true;
-
+                //Al realizar el movmiento restamos uno en la puntuacion
+                score--;
             }
             //Derecha-Izquierda
             else if (finalJ - iV_selectedJ == -2) {
-                //Primera Bola
+                //la del primer click pasa a ser vacia
                 matrixImageView[iV_selectedI][iV_selectedJ].setBackgroundResource(R.drawable.vacia);
-                // Bola Medio
+                // la de enmedio pasa a ser vacia
                 matrixImageView[iV_selectedI][iV_selectedJ - 1].setBackgroundResource(R.drawable.vacia);
-                //Ultima Bola
+                //la del segundo click pasa a ser rellena
                 matrixImageView[iV_selectedI][iV_selectedJ - 2].setBackgroundResource(R.drawable.ficharellena);
                 firstClick = true;
+                //Al realizar el movmiento restamos uno en la puntuacion
+                score--;
             }
-        } else {
+        /*} else {
             if (matrixImageView[finalI][finalJ].getBackground().getConstantState().equals(
                     getResources().getDrawable(R.drawable.fichaseleccionada, null).getConstantState()) &&
                     matrixImageView[iV_selectedI][iV_selectedJ].getBackground().getConstantState().equals(
                             getResources().getDrawable(R.drawable.vacia, null).getConstantState())) {
+            }*/
+        }
+        updateScore(score);
+       // checkGameOver();
+    }
+
+    public void checkGameOver() {
+
+        int casillasDisponibles = 0;
+
+        for (int i = 0; i < matrixImageView.length; i++) {
+            for (int j = 0; j < matrixImageView[0].length; j++) {
+                // buscamos casilla rellena
+                if (matrixImageView[i][j].getBackground().getConstantState().equals(getResources().getDrawable(R.drawable.ficharellena, null).getConstantState())) {
+                    //miramos si la ficha rellena tiene alguna ficha rellena a su alrededor y luego una vacia
+                    if (matrixImageView[i + 1][j].getBackground().getConstantState().equals(getResources().getDrawable(R.drawable.ficharellena, null).getConstantState())&&
+                            matrixImageView[i + 2][j].getBackground().getConstantState().equals(getResources().getDrawable(R.drawable.vacia, null).getConstantState()) ){
+                        casillasDisponibles++;
+                    }else if(matrixImageView[i - 1][j].getBackground().getConstantState().equals(getResources().getDrawable(R.drawable.ficharellena, null).getConstantState())
+                            && matrixImageView[i + 2][j].getBackground().getConstantState().equals(getResources().getDrawable(R.drawable.vacia, null).getConstantState())){
+                        casillasDisponibles++;
+                    }else if(matrixImageView[i][j+1].getBackground().getConstantState().equals(getResources().getDrawable(R.drawable.ficharellena, null).getConstantState())
+                            &&matrixImageView[i][j+2].getBackground().getConstantState().equals(getResources().getDrawable(R.drawable.vacia, null).getConstantState())){
+                        casillasDisponibles++;
+                    }else if(matrixImageView[i][j-1].getBackground().getConstantState().equals(getResources().getDrawable(R.drawable.ficharellena, null).getConstantState())
+                            &&matrixImageView[i][j-2].getBackground().getConstantState().equals(getResources().getDrawable(R.drawable.vacia, null).getConstantState())) {
+                        casillasDisponibles++;
+                            }
+                }else{
+                    //casillas = 0
+                    //game Over
+                    Intent intent = new Intent(gamePeg.this, SplashGameOver.class);
+                    intent.putExtra("id", id);
+                    startActivity(intent);
+                    finish();
+
+                }
             }
         }
+
 
     }
 
@@ -255,6 +351,7 @@ public class gamePeg extends AppCompatActivity {
                 }
             }
         }
+
         //si es == 1 game Over (gana)
         if (numeroCasillasRellenas == 1) {
             Intent intent = new Intent(gamePeg.this, SplashGameOver.class);
@@ -263,57 +360,5 @@ public class gamePeg extends AppCompatActivity {
             finish();
         }
         return numeroCasillasRellenas;
-
-}
-
-
-    public boolean checkGameOver() {
-        //Recorremos la matriz y detectamos las fichas rellenas
-        //Miramos si las fichas pueden realizar un movimiento de izquierda-derecha o de arriba-abajo
-        //simplemente miramos si las casillas de los lados tienen drawable
-        //si ninguna tiene terminas, sino seguimos
-        for (int i = 0; i < matrixImageView.length; i++) {
-            for (int j = 0; j < matrixImageView[0].length - 2; j++) {
-                //Izquierda-Derecha (Derecha)
-                if (matrixImageView[i][j].getBackground().getConstantState().equals(
-                        getResources().getDrawable(R.drawable.ficharellena, null).getConstantState())
-                        && matrixImageView[i][j + 1].getBackground().getConstantState().equals(
-                        getResources().getDrawable(R.drawable.ficharellena, null).getConstantState())
-                        && matrixImageView[i][j + 2].getBackground().getConstantState().equals(
-                        getResources().getDrawable(R.drawable.vacia, null).getConstantState())) {
-                    return false;
-                }//Izquierda-Derecha (Izquierda)
-                if (matrixImageView[i][j + 1].getBackground().getConstantState().equals(
-                        getResources().getDrawable(R.drawable.ficharellena, null).getConstantState())
-                        && matrixImageView[i][j + 2].getBackground().getConstantState().equals(
-                        getResources().getDrawable(R.drawable.ficharellena, null).getConstantState())
-                        && matrixImageView[i][j].getBackground().getConstantState().equals(
-                        getResources().getDrawable(R.drawable.vacia, null).getConstantState())) {
-                    return false;
-                }
-            }
-        }
-        for (int i = 0; i < matrixImageView.length - 2; i++) {
-            for (int j = 0; j < matrixImageView[0].length; j++) {
-                //Arriba-abajo (Abajo)
-                if (matrixImageView[i][j].getBackground().getConstantState().equals(
-                        getResources().getDrawable(R.drawable.ficharellena, null).getConstantState())
-                        && matrixImageView[i + 1][j].getBackground().getConstantState().equals(
-                        getResources().getDrawable(R.drawable.ficharellena, null).getConstantState())
-                        && matrixImageView[i + 2][j].getBackground().getConstantState().equals(
-                        getResources().getDrawable(R.drawable.vacia, null).getConstantState())) {
-                    return false;
-                }//Arriba-abajo (Arriba)
-                if (matrixImageView[i + 1][j].getBackground().getConstantState().equals(
-                        getResources().getDrawable(R.drawable.ficharellena, null).getConstantState())
-                        && matrixImageView[i + 2][j].getBackground().getConstantState().equals(
-                        getResources().getDrawable(R.drawable.ficharellena, null).getConstantState())
-                        && matrixImageView[i][j].getBackground().getConstantState().equals(
-                        getResources().getDrawable(R.drawable.vacia, null).getConstantState())) {
-                    return false;
-                }
-            }
-        }
-        return true;
     }
 }

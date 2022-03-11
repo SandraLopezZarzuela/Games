@@ -8,7 +8,7 @@
         android:icon="@drawable/img"
         android:label="Game Center"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AppCompat.DayNight.DarkActionBar">
+        android:theme="@style/Theme.AppCompat.NoActionBar">
         <activity
             android:name=".RankingPeg"
             android:exported="false" />

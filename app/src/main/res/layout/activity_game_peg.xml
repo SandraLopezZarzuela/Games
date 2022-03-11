@@ -478,9 +478,9 @@
     <LinearLayout
         android:id="@+id/bottomPanel"
         android:layout_width="408dp"
-        android:layout_marginTop="15dp"
         android:layout_height="102dp"
         android:layout_gravity="center"
+        android:layout_marginTop="15dp"
         android:orientation="horizontal">
 
         <Button
@@ -488,9 +488,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_margin="10dp"
+            android:layout_marginLeft="20dp"
             android:layout_weight="1"
-            android:background="#CEE3F6"
+            android:background="@drawable/ficharellena"
             android:text="Restart" />
 
         <Button
@@ -503,17 +503,6 @@
             android:layout_weight="1"
             android:background="@drawable/fondorojo"
             android:text="Menu" />
-
-
-        <Button
-            android:id="@+id/back"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_margin="10dp"
-            android:layout_weight="1"
-            android:background="#CEE3F6"
-            android:text="Back" />
 
 
     </LinearLayout>

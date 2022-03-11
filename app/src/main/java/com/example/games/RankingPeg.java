@@ -3,6 +3,7 @@ package com.example.games;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -24,6 +25,9 @@ public class RankingPeg extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ranking);
+
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
 
         menu = (Button) findViewById(R.id.rMenu);
 
@@ -48,7 +52,7 @@ public class RankingPeg extends AppCompatActivity {
         //asignamos los users como strings a traves del for
         ArrayList<String> l2 = new ArrayList<>();
 
-        Collections.sort(l, u.bestScorePeg);
+     //   Collections.sort(l, u.bestScorePeg);
 
         for (Usuario u : l) {
             l2.add(String.valueOf(u.getScorePeg())+"                                                              "+ u.getUsuario());

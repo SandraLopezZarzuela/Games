@@ -27,8 +27,7 @@ public class Card2048 extends FrameLayout {
         return num;
     }
 
-
-    //Campo vacip para los numeros menos que 0
+    //Campo vacio para los numeros menos que 0
     public void setNum(int num) {
 
         this.num = num;

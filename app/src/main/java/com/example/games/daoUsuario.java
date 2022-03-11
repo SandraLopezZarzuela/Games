@@ -14,7 +14,7 @@ public class daoUsuario {
     SQLiteDatabase sql;
     String bd = "BDUsuarios";
     //creamos tabla si no existe en la bbdd
-    String tabla = "create table if not exists us (id integer primary key autoincrement, usuario text, pass text, nombre text, ap text, scorePeg integer, score2048 integer)";
+    String tabla = "create table if not exists w (id integer primary key autoincrement, usuario text, pass text, nombre text, ap text, scorePeg integer, score2048 integer)";
 
     public daoUsuario(Context c) {
         this.c = c;
@@ -36,7 +36,7 @@ public class daoUsuario {
             cv.put("ap", u.getApellidos());
             cv.put("scorePeg", 32);
             cv.put("score2048", 0);
-            return (sql.insert("us", null, cv)>0);
+            return (sql.insert("w", null, cv)>0);
 
         }else{
             return false;
@@ -58,7 +58,7 @@ public class daoUsuario {
     public ArrayList<Usuario> selectUsuario(){
         ArrayList<Usuario> lista = new ArrayList<Usuario>();
         lista.clear();;
-        Cursor cr = sql.rawQuery("select * from us", null);
+        Cursor cr = sql.rawQuery("select * from w", null);
         if (cr!=null&&cr.moveToFirst()){
             do{
                 Usuario u = new Usuario();
@@ -78,7 +78,7 @@ public class daoUsuario {
 
     public int login (String u, String p){
         int a = 0;
-        Cursor cr = sql.rawQuery("select * from us", null);
+        Cursor cr = sql.rawQuery("select * from w", null);
         if (cr!=null&&cr.moveToFirst()){
             do{
                 //miramos si nuestro usuario esta registrado, comparamos los valores en nuestra bbdd
@@ -119,7 +119,7 @@ public class daoUsuario {
         cv.put("nombre", u.getNombre());
         cv.put("ap", u.getApellidos());
         //hacemos el update con el valor del id que vamos a buscar
-        return (sql.update("us", cv, "id="+u.getId(),null)>0);
+        return (sql.update("w", cv, "id="+u.getId(),null)>0);
 
     }
 
@@ -127,18 +127,18 @@ public class daoUsuario {
         ContentValues cv = new ContentValues();
         cv.put("scorePeg", u.getScorePeg());
         //hacemos el update con el valor del id que vamos a buscar
-        return (sql.update("us", cv, "id="+u.getId(),null)>0);
+        return (sql.update("w", cv, "id="+u.getId(),null)>0);
     }
 
     public boolean updateScore2048(Usuario u){
         ContentValues cv = new ContentValues();
         cv.put("score2048", u.getScore2048());
         //hacemos el update con el valor del id que vamos a buscar
-        return (sql.update("us", cv, "id="+u.getId(),null)>0);
+        return (sql.update("w", cv, "id="+u.getId(),null)>0);
     }
 
     public boolean deleteUsuario(int id){
         //instruccion para eliminar nuestro usuario por su id en la bbdd
-        return (sql.delete("us", "id="+id, null)>0);
+        return (sql.delete("w", "id="+id, null)>0);
     }
 }

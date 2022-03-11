@@ -48,7 +48,7 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginStart="91dp"
+        android:layout_marginStart="71dp"
         android:layout_marginTop="307dp"
         android:text="Usuario"
         android:textAlignment="center"

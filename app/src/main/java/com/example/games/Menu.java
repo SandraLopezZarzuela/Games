@@ -43,7 +43,7 @@ public class Menu extends AppCompatActivity {
         //Asignamos el nombre y apellido del usuario gracias a su id
         dao = new daoUsuario(this);
         u = dao.getUsuarioById(id);
-        nombre.setText(u.getNombre() + " " + u.getApellidos()+u.getScore2048()+u.getScorePeg());
+        nombre.setText(u.getNombre() + " " + u.getApellidos());
 
 
         opcionesMenu();

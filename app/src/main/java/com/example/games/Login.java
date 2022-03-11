@@ -3,6 +3,7 @@ package com.example.games;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
@@ -22,6 +23,9 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
 
         click = MediaPlayer.create(this,R.raw.click2);
         user = (EditText) findViewById(R.id.User);
@@ -44,16 +48,16 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
                 String u = user.getText().toString();
                 String p = pass.getText().toString();
                 if (u.equals("")&&p.equals("")){
-                    Toast.makeText(this,"ERROR: CAMPOS VACIOS",Toast.LENGTH_LONG).show();
+                    Toast.makeText(this,"ERROR: CAMPOS VACIOS",Toast.LENGTH_SHORT).show();
                 }else if (dao.login(u,p)==1){
                     Usuario ux = dao.getUsuario(u,p);
-                    Toast.makeText(this,"Datos correctos",Toast.LENGTH_LONG).show();
+                    Toast.makeText(this,"Datos correctos",Toast.LENGTH_SHORT).show();
                     Intent i2 = new Intent(Login.this, Menu.class);
                     i2.putExtra("id", ux.getId());
                     startActivity(i2);
                     finish();
                 }else{
-                    Toast.makeText(this,"Usario y/o password incorrecto",Toast.LENGTH_LONG).show();
+                    Toast.makeText(this,"Usario y/o password incorrecto",Toast.LENGTH_SHORT).show();
                 }
                 break;
 

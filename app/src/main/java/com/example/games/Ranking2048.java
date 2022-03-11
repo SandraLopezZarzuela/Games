@@ -1,6 +1,7 @@
 package com.example.games;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -20,12 +21,12 @@ public class Ranking2048 extends AppCompatActivity {
     Usuario u;
     Button menu;
 
-    boolean ascending = true;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ranking);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
 
         menu = (Button) findViewById(R.id.rMenu);
 

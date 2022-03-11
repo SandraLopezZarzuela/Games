@@ -105,20 +105,15 @@ public class game2048 extends Activity {
 
     public void addScore(int i) {
         score += i;
-
         showScore();
+        updateScore();
+
+    }
+
+    public void updateScore(){
         if (score>u.getScore2048()){
             u.setScore2048(score);
             dao.updateScore2048(u);
-        }
-
-        SharedPreferences pref = getSharedPreferences("pMaxScore", MODE_PRIVATE);
-
-        if (score > pref.getInt("maxScore", 0)) {
-            SharedPreferences.Editor editor = pref.edit();
-            editor.putInt("maxScore", score);
-            editor.commit();
-            maxScore.setText(pref.getInt("maxScore", 0) + "");
         }
     }
 
