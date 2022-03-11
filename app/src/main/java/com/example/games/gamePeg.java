@@ -352,7 +352,7 @@ public class gamePeg extends AppCompatActivity {
             }
         }
 
-        //si es == 1 game Over (gana)
+        //si es == 1  gana
         if (numeroCasillasRellenas == 1) {
             Intent intent = new Intent(gamePeg.this, SplashGameOver.class);
             intent.putExtra("id", id);
